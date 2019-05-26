@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "../include/random.h"
+
 void printHelp();
 
 
@@ -82,6 +84,10 @@ int main(int argc, char const *argv[])
 		printf("Algorithm not recognized. Please see README.md for a list of available algorithms\n");
 		return 1;
 	}
+
+	int arr[n];
+	populateArr(arr,n);
+	printArr(arr,n);
 
 	return 0;
 }
