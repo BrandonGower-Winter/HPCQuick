@@ -3,7 +3,7 @@ UNAME_S := $(shell uname -s)
 
 COMPILER = gcc
 FILES = $(shell find src/ -name "*.c")
-APP_NAME = bin/HPCQuick
+APP_NAME = bin/quick
 
 all: main
 
