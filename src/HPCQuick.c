@@ -1,11 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
+#include <time.h>
 #include "../include/random.h"
+#include "../include/Quicksort.h"
 
 void printHelp();
-
 
 void printHelp()
 {
@@ -44,6 +44,10 @@ int main(int argc, char const *argv[])
 		if(strcmp(impl,"std") == 0)
 		{
 			printf("%s\n", "Version Implementation: Standard");
+			clock_t start = clock(), diff;
+			quicksort_serial_unoptimized_entry(arr,n);
+			diff = clock() - start;
+			printf("%f\n",(diff*1000)/(float)CLOCKS_PER_SEC);
 		}
 		else if(strcmp(impl,"openmp") == 0)
 		{
