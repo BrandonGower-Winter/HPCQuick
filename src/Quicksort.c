@@ -44,7 +44,13 @@ void quicksort_serial_unoptimized(int* arr, int lo, int hi)
 
 void quicksort_openmp_unoptimized_entry(int* arr, int len)
 {
-	quicksort_openmp_unoptimized(arr,0,len-1);
+	#pragma omp parallel
+	{
+		#pragma omp single nowait
+		{			
+			quicksort_openmp_unoptimized(arr,0,len-1);
+		}
+	}
 }
 
 void quicksort_openmp_unoptimized(int* arr, int lo, int hi)
@@ -53,13 +59,49 @@ void quicksort_openmp_unoptimized(int* arr, int lo, int hi)
 	{
 		int part = parition(arr,lo,hi);
 
-		#pragma omp task default(none) firstprivate(arr,lo,part)
+		#pragma omp task
 		{
-			quicksort_serial_unoptimized(arr,lo,part-1);
+			quicksort_openmp_unoptimized(arr,lo,part-1);
 		}
-		#pragma omp task default(none) firstprivate(arr,hi,part)
+		#pragma omp task
 		{
-			quicksort_serial_unoptimized(arr,part+1,hi);
+			quicksort_openmp_unoptimized(arr,part+1,hi);
+		}
+	}
+}
+
+void quicksort_openmp_optimized_entry(int* arr, int len, int cutoff)
+{
+	#pragma omp parallel
+	{
+			#pragma omp single nowait
+			{			
+				quicksort_openmp_optimized(arr,0,len-1,cutoff);
+			}
+	}
+}
+
+void quicksort_openmp_optimized(int* arr, int lo, int hi, int cutoff)
+{
+	if(lo < hi)
+	{
+		int part = parition(arr,lo,hi);
+
+		if(hi-lo < cutoff)
+		{
+			quicksort_openmp_optimized(arr,lo,part-1,cutoff);
+			quicksort_openmp_optimized(arr,part+1,hi,cutoff);
+		}
+		else
+		{
+			#pragma omp task
+			{
+				quicksort_openmp_optimized(arr,lo,part-1,cutoff);
+			}
+			#pragma omp task
+			{
+				quicksort_openmp_optimized(arr,part+1,hi,cutoff);
+			}
 		}
 	}
 }

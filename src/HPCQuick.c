@@ -32,6 +32,7 @@ int main(int argc, char *argv[])
 	char* impl = argv[2];
 	int n = atoi(argv[3]);
 	int threads = 2;
+	int cutoff = 1000;
 
 	for (int i = 4; i < argc; ++i)
 	{
@@ -39,6 +40,11 @@ int main(int argc, char *argv[])
 		{
 			++i;
 			threads = atoi(argv[i]);
+		}
+		else if(strcmp(argv[i],"-cut") == 0)
+		{
+			++i;
+			cutoff = atoi(argv[i]);
 		}
 	}
 
@@ -51,7 +57,6 @@ int main(int argc, char *argv[])
 	}
 	populateArr(arr,n);
 	printf("Array Created\n");
-
 	if(strcmp(algorithm,"quick") == 0)
 	{
 		printf("%s\n", "Sorting Algorithm: Quicksort");
@@ -69,16 +74,20 @@ int main(int argc, char *argv[])
 			printf("%s\n", "Version Implementation: OpenMP");
 			omp_set_num_threads(threads);
 			printf("%s: %d\n", "Number of threads", omp_get_max_threads());
-			clock_t start = clock(), diff;
-			#pragma omp parallel default(none) shared(arr,n)
-			{
-				#pragma omp single nowait
-				{			
-					quicksort_openmp_unoptimized_entry(arr,n);
-				}
-			}
-			diff = clock() - start;
-			printf("%f\n",(diff*1000)/(float)CLOCKS_PER_SEC);
+			double time = omp_get_wtime();
+			quicksort_openmp_optimized_entry(arr,n,cutoff);
+			time = omp_get_wtime() - time;
+			printf("%lf\n",(time*1000));
+		}
+		else if(strcmp(impl,"uopenmp") == 0)
+		{
+			printf("%s\n", "Version Implementation: Unoptimized OpenMP");
+			omp_set_num_threads(threads);
+			printf("%s: %d\n", "Number of threads", omp_get_max_threads());
+			double time = omp_get_wtime();
+			quicksort_openmp_unoptimized_entry(arr,n);
+			time = omp_get_wtime() - time;
+			printf("%lf\n",(time*1000));
 		}
 		else if(strcmp(impl,"mpi") == 0)
 		{
