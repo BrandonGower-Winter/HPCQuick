@@ -1,4 +1,6 @@
 #include "../include/Quicksort.h"
+#include "omp.h"
+
 
 void swap(int* arr, int a, int b)
 {
@@ -37,5 +39,27 @@ void quicksort_serial_unoptimized(int* arr, int lo, int hi)
 
 		quicksort_serial_unoptimized(arr,lo,part-1);
 		quicksort_serial_unoptimized(arr,part+1,hi);
+	}
+}
+
+void quicksort_openmp_unoptimized_entry(int* arr, int len)
+{
+	quicksort_openmp_unoptimized(arr,0,len-1);
+}
+
+void quicksort_openmp_unoptimized(int* arr, int lo, int hi)
+{
+	if(lo < hi)
+	{
+		int part = parition(arr,lo,hi);
+
+		#pragma omp task default(none) firstprivate(arr,lo,part)
+		{
+			quicksort_serial_unoptimized(arr,lo,part-1);
+		}
+		#pragma omp task default(none) firstprivate(arr,hi,part)
+		{
+			quicksort_serial_unoptimized(arr,part+1,hi);
+		}
 	}
 }

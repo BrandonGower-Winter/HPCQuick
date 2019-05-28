@@ -4,6 +4,7 @@
 #include <time.h>
 #include "../include/random.h"
 #include "../include/Quicksort.h"
+#include "omp.h"
 
 void printHelp();
 
@@ -18,7 +19,7 @@ void printHelp()
 
 
 
-int main(int argc, char const *argv[])
+int main(int argc, char *argv[])
 {
 	if(argc < 3)
 	{
@@ -30,10 +31,24 @@ int main(int argc, char const *argv[])
 	char* algorithm = argv[1];
 	char* impl = argv[2];
 	int n = atoi(argv[3]);
+	int threads = 2;
+
+	for (int i = 4; i < argc; ++i)
+	{
+		if(strcmp(argv[i],"-t") == 0)
+		{
+			++i;
+			threads = atoi(argv[i]);
+		}
+	}
 
 	printf("%s%d\n", "Length of the array: ",n);
 	printf("Generating Array...\n");
-	int arr[n];
+	int* arr = malloc(sizeof(int) * n);
+	if(!arr)
+	{
+		printf("Not enough memory of the heap for %d ints\n", n);
+	}
 	populateArr(arr,n);
 	printf("Array Created\n");
 
@@ -52,6 +67,18 @@ int main(int argc, char const *argv[])
 		else if(strcmp(impl,"openmp") == 0)
 		{
 			printf("%s\n", "Version Implementation: OpenMP");
+			omp_set_num_threads(threads);
+			printf("%s: %d\n", "Number of threads", omp_get_max_threads());
+			clock_t start = clock(), diff;
+			#pragma omp parallel default(none) shared(arr,n)
+			{
+				#pragma omp single nowait
+				{			
+					quicksort_openmp_unoptimized_entry(arr,n);
+				}
+			}
+			diff = clock() - start;
+			printf("%f\n",(diff*1000)/(float)CLOCKS_PER_SEC);
 		}
 		else if(strcmp(impl,"mpi") == 0)
 		{
@@ -60,7 +87,6 @@ int main(int argc, char const *argv[])
 		else
 		{
 			printf("%s\n", "Version not recognized. Please see README.md for a list of available versions.");
-			return 1;
 		}
 
 	}
@@ -83,15 +109,13 @@ int main(int argc, char const *argv[])
 		else
 		{
 			printf("%s\n", "Version not recognized. Please see README.md for a list of available versions.");
-			return 1;
 		}
 
 	}
 	else
 	{
 		printf("Algorithm not recognized. Please see README.md for a list of available algorithms\n");
-		return 1;
 	}
-
+	free(arr);
 	return 0;
 }
