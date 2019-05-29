@@ -26,11 +26,13 @@ n - The number of randomly generated numbers to sort. (Numbers generated are [0-
 o - (Optional) The name of the file to write the results too. (Defaults to STDOUT)
 t - (Optional) The number of threads/nodes you want for your parallel code. (default = 2)
 cut - (Optional) The threshold at which serial work should be done (default = 1000)
+val - (Optional) Validates the array. (Used to check correctness)
+reps - (Optional) The number of the times to repeat the algorithm. (default = 1)
 ```
 To use HPCQuick you need to first choose which algorithm you want. The options you have are as follows:
 
 * Quicksort (quick)
-* Parallel Pivot (parapivot)
+* Parallel Pivot (psrs)
 
 
 

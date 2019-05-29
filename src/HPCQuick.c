@@ -1,9 +1,12 @@
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+#include <string.h> 
 #include <time.h>
 #include "../include/random.h"
 #include "../include/Quicksort.h"
+#include "../include/Insertionsort.h"
+#include "../include/PSRS.h"
 #include "omp.h"
 
 void printHelp();
@@ -33,6 +36,10 @@ int main(int argc, char *argv[])
 	int n = atoi(argv[3]);
 	int threads = 2;
 	int cutoff = 1000;
+	int reps = 1;
+	bool validate = false;
+	bool avg = false;
+	float avgsum = 0;
 
 	for (int i = 4; i < argc; ++i)
 	{
@@ -45,6 +52,19 @@ int main(int argc, char *argv[])
 		{
 			++i;
 			cutoff = atoi(argv[i]);
+		}
+		else if(strcmp(argv[i],"-reps") == 0)
+		{
+			++i;
+			reps = atoi(argv[i]);
+		}
+		else if(strcmp(argv[i],"-val") == 0)
+		{
+			validate = true;
+		}
+		else if(strcmp(argv[i],"-avg") == 0)
+		{
+			avg = true;
 		}
 	}
 
@@ -64,34 +84,91 @@ int main(int argc, char *argv[])
 		if(strcmp(impl,"std") == 0)
 		{
 			printf("%s\n", "Version Implementation: Standard");
-			clock_t start = clock(), diff;
-			quicksort_serial_unoptimized_entry(arr,n);
-			diff = clock() - start;
-			printf("%f\n",(diff*1000)/(float)CLOCKS_PER_SEC);
+			for (int i = 0; i < reps; ++i)
+			{
+				if(i != 0)
+				{
+					populateArr(arr,n);
+				}
+				clock_t start = clock(), diff;
+				quicksort_serial_optimized_entry(arr,n);
+				diff = clock() - start;
+
+				if(!avg) printf("%f\n",(diff*1000)/(float)CLOCKS_PER_SEC);
+				else avgsum += (diff*1000)/(float)CLOCKS_PER_SEC;
+			}
+			if(avg)
+				printf("Average: %f\n", avgsum/reps);
+		}
+		else if(strcmp(impl,"ustd") == 0)
+		{
+			printf("%s\n", "Version Implementation: Unoptimized Standard");
+			for (int i = 0; i < reps; ++i)
+			{
+				if(i != 0)
+				{
+					populateArr(arr,n);
+				}
+				clock_t start = clock(), diff;
+				quicksort_serial_unoptimized_entry(arr,n);
+				diff = clock() - start;
+
+				if(!avg) printf("%f\n",(diff*1000)/(float)CLOCKS_PER_SEC);
+				else avgsum += (diff*1000)/(float)CLOCKS_PER_SEC;
+			}
+			if(avg)
+				printf("Average: %f\n", avgsum/reps);
+			
 		}
 		else if(strcmp(impl,"openmp") == 0)
 		{
 			printf("%s\n", "Version Implementation: OpenMP");
 			omp_set_num_threads(threads);
 			printf("%s: %d\n", "Number of threads", omp_get_max_threads());
-			double time = omp_get_wtime();
-			quicksort_openmp_optimized_entry(arr,n,cutoff);
-			time = omp_get_wtime() - time;
-			printf("%lf\n",(time*1000));
+
+			for (int i = 0; i < reps; ++i)
+			{
+				if(i != 0)
+				{
+					populateArr(arr,n);
+				}
+				double time = omp_get_wtime();
+				quicksort_openmp_optimized_entry(arr,n,cutoff);
+				time = omp_get_wtime() - time;
+
+				if(!avg) printf("%lf\n",(time*1000));
+				else avgsum += time*1000;
+			}
+			if(avg)
+				printf("Average: %f\n", avgsum/reps);			
 		}
 		else if(strcmp(impl,"uopenmp") == 0)
 		{
 			printf("%s\n", "Version Implementation: Unoptimized OpenMP");
 			omp_set_num_threads(threads);
 			printf("%s: %d\n", "Number of threads", omp_get_max_threads());
-			double time = omp_get_wtime();
-			quicksort_openmp_unoptimized_entry(arr,n);
-			time = omp_get_wtime() - time;
-			printf("%lf\n",(time*1000));
+			for (int i = 0; i < reps; ++i)
+			{
+				if(i != 0)
+				{
+					populateArr(arr,n);
+				}
+				double time = omp_get_wtime();
+				quicksort_openmp_unoptimized_entry(arr,n);
+				time = omp_get_wtime() - time;
+
+				if(!avg) printf("%lf\n",(time*1000));
+				else avgsum += time*1000;
+			}
+			if(avg)
+				printf("Average: %f\n", avgsum/reps);
 		}
 		else if(strcmp(impl,"mpi") == 0)
 		{
 			printf("%s\n", "Version Implementation: OpenMPI");
+			printArr(arr,n);
+			insertionsort(arr,0,n);
+			printArr(arr,n);
 		}
 		else
 		{
@@ -99,17 +176,51 @@ int main(int argc, char *argv[])
 		}
 
 	}
-	else if (strcmp(algorithm,"parapivot") == 0)
+	else if (strcmp(algorithm,"psrs") == 0)
 	{
-		printf("%s\n", "Sorting Algorithm: Parallel Pivot...");
-
-		if(strcmp(impl,"std") == 0)
-		{
-			printf("%s\n", "Version Implementation: Standard");
-		}
-		else if(strcmp(impl,"openmp") == 0)
+		printf("%s\n", "Sorting Algorithm: PSRS...");
+		if(strcmp(impl,"openmp") == 0)
 		{
 			printf("%s\n", "Version Implementation: OpenMP");
+			printf("%s: %d\n", "Number of threads", threads);
+			for (int i = 0; i < reps; ++i)
+			{
+				if(i != 0)
+				{
+					populateArr(arr,n);
+				}
+				double time = omp_get_wtime();
+				PSRS_openmp_optimized(arr,n,threads,cutoff);
+				time = omp_get_wtime() - time;
+
+				if(!avg) printf("%lf\n",(time*1000));
+				else avgsum += time*1000;
+			}
+			if(avg)
+				printf("Average: %f\n", avgsum/reps);
+
+		}
+		else if(strcmp(impl,"uopenmp") == 0)
+		{
+			printf("%s\n", "Version Implementation: Unoptimized OpenMP");
+			printf("%s: %d\n", "Number of threads", threads);
+
+			for (int i = 0; i < reps; ++i)
+			{
+				if(i != 0)
+				{
+					populateArr(arr,n);
+				}
+				double time = omp_get_wtime();
+				PSRS_openmp_unoptimized(arr,n,threads);
+				time = omp_get_wtime() - time;
+
+				if(!avg) printf("%lf\n",(time*1000));
+				else avgsum += time*1000;
+			}
+			if(avg)
+				printf("Average: %f\n", avgsum/reps);
+
 		}
 		else if(strcmp(impl,"mpi") == 0)
 		{
@@ -124,6 +235,30 @@ int main(int argc, char *argv[])
 	else
 	{
 		printf("Algorithm not recognized. Please see README.md for a list of available algorithms\n");
+	}
+	if(validate)
+	{
+		int comp = arr[0];
+		for(int i = 1; i < n; ++i)
+		{
+			if(comp <= arr[i])
+			{
+				comp = arr[i];
+			}
+			else
+			{
+				validate = false;
+				break;
+			}
+		}
+		if(validate)
+		{
+			printf("Array is correct\n");
+		}
+		else
+		{
+			printf("Array is incorrect\n");
+		}
 	}
 	free(arr);
 	return 0;
