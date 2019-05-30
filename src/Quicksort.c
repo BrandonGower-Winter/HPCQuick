@@ -1,6 +1,9 @@
 #include "../include/Quicksort.h"
 #include "../include/Insertionsort.h"
+#include "../include/Mergesort.h"
 #include "omp.h"
+#include <time.h>
+#include <stdio.h>
 
 
 void swap(int* arr, int a, int b)
@@ -79,6 +82,10 @@ void quicksort_serial_optimized(int* arr, int lo, int hi)
 		if(hi -lo < 50)
 		{
 			insertionsort(arr,lo,hi+1);
+		}
+		else if(hi - lo < 10000)
+		{
+			mergesort_serial(arr,lo,hi);
 		}
 		else
 		{
