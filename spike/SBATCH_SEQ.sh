@@ -4,7 +4,7 @@
 #SBATCH --partition=curie
 
 # The line below means you need 1 worker node and a total of 2 cores
-#SBATCH --nodes=2 --ntasks=1
+#SBATCH --nodes=1 --ntasks=1
 #  To evenly split over two nodes use: --ntasks-per-node=2
 
 #SBATCH --time=20:00
@@ -18,11 +18,11 @@
 
 module load compilers/gcc820
 make
-./bin/quick quick std 10 -reps 10 -avg
-./bin/quick quick std 100 -reps 10 -avg
-./bin/quick quick std 1000 -reps 10 -avg
-./bin/quick quick std 10000 -reps 10 -avg
-./bin/quick quick std 100000 -reps 10 -avg
-./bin/quick quick std 1000000 -reps 10 -avg
-./bin/quick quick std 10000000 -reps 10 -avg
-./bin/quick quick std 100000000 -reps 10 -avg
+./bin/quick quick std 10
+./bin/quick quick std 100
+./bin/quick quick std 1000
+./bin/quick quick std 10000
+./bin/quick quick std 100000
+./bin/quick quick std 1000000
+./bin/quick quick std 10000000
+./bin/quick quick std 100000000
