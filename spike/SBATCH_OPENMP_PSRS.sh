@@ -29,7 +29,7 @@ echo *****2 threads*****
 ./bin/quick psrs openmp 100000000
 echo *****4 threads*****
 ./bin/quick psrs openmp 10 -t 4
-./bin/quick psrs openmp 100-t 4
+./bin/quick psrs openmp 100 -t 4
 ./bin/quick psrs openmp 1000 -t 4
 ./bin/quick psrs openmp 10000 -t 4
 ./bin/quick psrs openmp 100000 -t 4
