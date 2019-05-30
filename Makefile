@@ -16,6 +16,9 @@ main: $(FILES)
 mpi: $(FILES)
 	$(MPI_COMPILER) $(FLAGS) $(MPI_FLAGS) $(FILES) -o $(APP_NAME)
 
+mpi_psrs:
+	$(MPI_COMPILER) $(MPI_FLAGS) ./lib/PSRS.c -o ./bin/psrs_mpi
+
 clean:
 	rm $(APP_NAME)
 
