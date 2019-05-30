@@ -1,13 +1,13 @@
- #!/bin/sh
+#!/bin/sh
 
 #SBATCH --account=icts
 #SBATCH --partition=curie
 
 # The line below means you need 1 worker node and a total of 2 cores
-#SBATCH --nodes=1 --ntasks=1
+#SBATCH --nodes=2 --ntasks=1
 #  To evenly split over two nodes use: --ntasks-per-node=2
 
-#SBATCH --time=10:00
+#SBATCH --time=20:00
 
 #SBATCH --mem-per-cpu=2000
 
