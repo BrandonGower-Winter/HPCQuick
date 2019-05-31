@@ -4,7 +4,6 @@
 #include "omp.h"
 #include <time.h>
 #include <stdio.h>
-#include <stdbool.h>
 
 
 void swap(int* arr, int a, int b)
@@ -40,27 +39,19 @@ int parition(int* arr, int lo, int hi)
 
 int parition_optimized(int* arr, int lo, int hi)
 {
-	int pivot = bestofthree(arr,lo,hi,lo + (hi-lo)/2);
-	
-    int i = lo - 1;
-    int j = hi + 1;
-    while(true)
-    {
-    	do
-    	{
-    		++i; 
-    	}while (arr[i] < pivot);
-    	do
-    	{
-    		--j;
-    	}while (arr[j] > pivot);
-    	
-    	if(i>=j)
-    		return j;
+	int pivot = bestofthree(arr,lo,hi,(hi-lo)/2);
+	int i = lo -1;
 
-    	swap(arr,i,j);
-
-    }
+	for (int j = lo; j < hi; ++j)
+	{
+		if(arr[j] <= pivot)
+		{
+			++i;
+			swap(arr,i,j);
+		}
+	}
+	swap(arr,i+1,hi);
+	return (i+1);
 }
 
 void quicksort_serial_unoptimized_entry(int* arr, int len)

@@ -18,7 +18,7 @@
 
 module load compilers/gcc820
 module load mpi/openmpi-4.0.1
-make mpi
+make mpi_psrs
 mpirun -n 2 ./bin/psrs_mpi 10
 mpirun -n 2 ./bin/psrs_mpi 100
 mpirun -n 2 ./bin/psrs_mpi 1000

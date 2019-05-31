@@ -1,3 +1,5 @@
+//author chunkaichang 
+//https://github.com/chunkaichang/MPI-sample-sort
 #include <stdlib.h>
 #include <stdio.h>
 #include <mpi.h>
